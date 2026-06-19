@@ -1,0 +1,110 @@
+{%- comment -%}
+  Product Slider section
+  Horizontal, scroll-snapping product carousel pulled from a chosen collection.
+  Products-per-view is configurable. Falls back to onboarding cards in the editor
+  when no collection is selected.
+{%- endcomment -%}
+
+<section class="prod-slider" style="--per-view: {{ section.settings.per_view }};">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="prod-slider__heading">{{ section.settings.heading | escape }}</h2>
+  {%- endif -%}
+
+  <div class="prod-slider__track">
+    {%- assign collection = collections[section.settings.collection] -%}
+    {%- if collection != blank and collection.products_count > 0 -%}
+      {%- for product in collection.products limit: section.settings.products_to_show -%}
+        <article class="prod-card">
+          <a href="{{ product.url }}" class="prod-card__link">
+            {%- if product.featured_image -%}
+              <img
+                class="prod-card__img"
+                src="{{ product.featured_image | image_url: width: 500 }}"
+                alt="{{ product.featured_image.alt | escape }}"
+                loading="lazy"
+                width="500"
+                height="{{ 500 | divided_by: product.featured_image.aspect_ratio | round }}"
+              >
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'prod-card__img' }}
+            {%- endif -%}
+            <h3 class="prod-card__title">{{ product.title | escape }}</h3>
+            <span class="prod-card__price">{{ product.price | money }}</span>
+          </a>
+        </article>
+      {%- endfor -%}
+    {%- else -%}
+      {%- for i in (1..4) -%}
+        <article class="prod-card">
+          {{ 'product-1' | placeholder_svg_tag: 'prod-card__img' }}
+          <h3 class="prod-card__title">Example product</h3>
+          <span class="prod-card__price">$19.00</span>
+        </article>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{%- style -%}
+  .prod-slider {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  .prod-slider__heading {
+    margin-bottom: 1em;
+  }
+  .prod-slider__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - (var(--per-view) - 1) * 16px) / var(--per-view));
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  .prod-card {
+    scroll-snap-align: start;
+  }
+  .prod-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .prod-card__img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    background: #f4f4f4;
+  }
+  .prod-card__title {
+    font-size: 0.95rem;
+    margin: 0.6em 0 0.2em;
+  }
+  .prod-card__price {
+    font-weight: 600;
+  }
+  @media (max-width: 749px) {
+    .prod-slider__track {
+      grid-auto-columns: 70%;
+    }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Product Slider",
+  "tag": "section",
+  "class": "section-product-slider",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Featured products" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "products_to_show", "min": 2, "max": 12, "step": 1, "label": "Products to show", "default": 8 },
+    { "type": "range", "id": "per_view", "min": 2, "max": 5, "step": 1, "label": "Products per view (desktop)", "default": 4 }
+  ],
+  "presets": [
+    { "name": "Product Slider" }
+  ]
+}
+{% endschema %}

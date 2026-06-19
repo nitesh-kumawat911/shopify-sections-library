@@ -1,0 +1,106 @@
+{%- comment -%}
+  FAQ Accordion section
+  Each question/answer pair is a block, so the merchant can add, remove and
+  reorder items from the theme editor. Uses native <details>/<summary> so it
+  works without JavaScript and stays accessible.
+{%- endcomment -%}
+
+<section class="faq" style="--faq-max: {{ section.settings.max_width }}px;">
+  {%- if section.settings.heading != blank -%}
+    <h2 class="faq__heading">{{ section.settings.heading | escape }}</h2>
+  {%- endif -%}
+
+  <div class="faq__list">
+    {%- for block in section.blocks -%}
+      <details class="faq__item" {{ block.shopify_attributes }}{% if forloop.first and section.settings.open_first %} open{% endif %}>
+        <summary class="faq__question">
+          <span>{{ block.settings.question | escape }}</span>
+          <span class="faq__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq__answer">{{ block.settings.answer }}</div>
+      </details>
+    {%- else -%}
+      <p>Add your first question from the theme editor.</p>
+    {%- endfor -%}
+  </div>
+</section>
+
+{%- style -%}
+  .faq {
+    max-width: var(--faq-max, 800px);
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+  .faq__heading {
+    text-align: center;
+    margin-bottom: 1.5em;
+  }
+  .faq__item {
+    border-bottom: 1px solid #e6e6e6;
+  }
+  .faq__question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 4px;
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+  }
+  .faq__question::-webkit-details-marker { display: none; }
+  .faq__icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+  }
+  .faq__icon::before,
+  .faq__icon::after {
+    content: "";
+    position: absolute;
+    background: currentColor;
+    transition: transform 0.2s ease;
+  }
+  .faq__icon::before { top: 6px; left: 0; width: 14px; height: 2px; }
+  .faq__icon::after  { top: 0; left: 6px; width: 2px; height: 14px; }
+  .faq__item[open] .faq__icon::after { transform: scaleY(0); }
+  .faq__answer {
+    padding: 0 4px 18px;
+    color: #555;
+    line-height: 1.6;
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "FAQ Accordion",
+  "tag": "section",
+  "class": "section-faq",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Frequently asked questions" },
+    { "type": "range", "id": "max_width", "min": 600, "max": 1100, "step": 20, "unit": "px", "label": "Max width", "default": 800 },
+    { "type": "checkbox", "id": "open_first", "label": "Open first item by default", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "faq",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "What is your return policy?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Add your answer here.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Accordion",
+      "blocks": [
+        { "type": "faq" },
+        { "type": "faq" },
+        { "type": "faq" }
+      ]
+    }
+  ]
+}
+{% endschema %}
